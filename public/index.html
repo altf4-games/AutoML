@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoML++</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border: 1px solid #ddd;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>AutoML++: Generate Your Machine Learning Model</h1>
+
+    <form id="uploadForm">
+        <label for="dataset">Upload CSV Dataset:</label>
+        <input type="file" id="dataset" name="dataset" accept=".csv" required>
+
+        <label for="task">Select Task Type:</label>
+        <select id="task" name="task">
+            <option value="classification">Classification</option>
+            <option value="regression">Regression</option>
+            <option value="clustering">Clustering</option>
+        </select>
+
+        <button type="submit">Generate ML Code</button>
+    </form>
+
+    <h2>Generated ML Code:</h2>
+    <pre id="output"></pre>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const formData = new FormData();
+            const fileInput = document.getElementById('dataset');
+            const taskType = document.getElementById('task').value;
+
+            // Append the CSV file and task type to the form data
+            formData.append('dataset', fileInput.files[0]);
+            formData.append('task', taskType);
+
+            // Send the form data to the server
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Display the generated ML code
+                    document.getElementById('output').textContent = result.modelCode;
+                } else {
+                    document.getElementById('output').textContent = 'Error: Failed to generate model code.';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('output').textContent = 'Error: Could not communicate with the server.';
+            }
+        });
+    </script>
+
+</body>
+
+</html>
