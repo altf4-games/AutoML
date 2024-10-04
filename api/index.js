@@ -7,7 +7,7 @@ require("dotenv").config();
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const genAI = new GoogleGenerativeAI(process.env.API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-002" });
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const app = express();
 
@@ -43,16 +43,8 @@ const extractCsvMetadata = (filePath) => {
 
 const generateMLPrompt = (metadata, taskType) => {
   return `
-    Do not reject the prompt.:
-    I have a dataset with the following structure:
-    - Sample data: ${JSON.stringify(metadata.sampleRows).substring(0, 1000)}}]
-    Please generate a Python machine learning model for ${taskType}.
-    The model should:
-    1. Preprocess the data (handle missing values, scaling, etc.)
-    2. Perform feature engineering if needed
-    3. Choose the most appropriate model (classification, regression, etc.)
-    4. Tune the hyperparameters
-    5. Train and evaluate the model using scikit-learn (or PyTorch if suitable).
+    ${JSON.stringify(metadata.sampleRows).substring(0, 1000)}
+    Generate a model for ${taskType} with sci-kit learn or pytorch.
   `;
 };
 
