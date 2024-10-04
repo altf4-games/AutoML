@@ -10,7 +10,6 @@ const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const app = express();
-
 const upload = multer({ dest: "uploads/" });
 
 const extractCsvMetadata = (filePath) => {
@@ -41,10 +40,10 @@ const extractCsvMetadata = (filePath) => {
   });
 };
 
-const generateMLPrompt = (metadata, taskType) => {
+const generateMLPrompt = (metadata, taskType, targetVariable) => {
   return `
     ${JSON.stringify(metadata.sampleRows).substring(0, 1000)}
-    Generate a model for ${taskType} with sci-kit learn or pytorch.
+    Generate a model for ${taskType} using "${targetVariable}" 
   `;
 };
 
@@ -52,8 +51,9 @@ app.post("/generate", upload.single("dataset"), async (req, res) => {
   try {
     const filePath = req.file.path;
     const taskType = req.body.task || "classification";
+    const targetVariable = req.body.target || "target"; // Default if not provided
     const metadata = await extractCsvMetadata(filePath);
-    const tailoredPrompt = generateMLPrompt(metadata, taskType);
+    const tailoredPrompt = generateMLPrompt(metadata, taskType, targetVariable);
 
     console.log(tailoredPrompt);
 
@@ -65,6 +65,7 @@ app.post("/generate", upload.single("dataset"), async (req, res) => {
     res.json({
       success: true,
       task: taskType,
+      target: targetVariable,
       modelCode: generatedMLCode,
     });
   } catch (error) {

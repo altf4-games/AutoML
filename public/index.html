@@ -5,32 +5,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoML++</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+            padding: 40px;
         }
 
         h1 {
+            text-align: center;
             color: #333;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
         }
 
-        form {
-            margin-bottom: 20px;
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         label {
-            display: block;
+            font-size: 1.1rem;
             margin-top: 10px;
+            display: block;
+            color: #555;
+        }
+
+        input[type="file"],
+        select,
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
         }
 
         button {
-            margin-top: 10px;
-            padding: 10px 15px;
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 5px;
+            font-size: 1.2rem;
             cursor: pointer;
         }
 
@@ -40,34 +72,46 @@
 
         pre {
             background-color: #f4f4f4;
-            padding: 15px;
-            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
             white-space: pre-wrap;
             word-wrap: break-word;
+        }
+
+        .generated-section {
+            margin-top: 30px;
         }
     </style>
 </head>
 
 <body>
 
-    <h1>AutoML++: Generate Your Machine Learning Model</h1>
+    <h1>AutoML++: Generate Your ML Model</h1>
 
-    <form id="uploadForm">
-        <label for="dataset">Upload CSV Dataset:</label>
-        <input type="file" id="dataset" name="dataset" accept=".csv" required>
+    <div class="container">
+        <form id="uploadForm">
+            <label for="dataset">Upload CSV Dataset:</label>
+            <input type="file" id="dataset" name="dataset" accept=".csv" required>
 
-        <label for="task">Select Task Type:</label>
-        <select id="task" name="task">
-            <option value="classification">Classification</option>
-            <option value="regression">Regression</option>
-            <option value="clustering">Clustering</option>
-        </select>
+            <label for="task">Select Task Type:</label>
+            <select id="task" name="task">
+                <option value="classification">Classification</option>
+                <option value="regression">Regression</option>
+                <option value="clustering">Clustering</option>
+            </select>
 
-        <button type="submit">Generate ML Code</button>
-    </form>
+            <label for="target">Specify Target Variable (optional):</label>
+            <input type="text" id="target" name="target" placeholder="e.g. price, label">
 
-    <h2>Generated ML Code:</h2>
-    <pre id="output"></pre>
+            <button type="submit">Generate ML Code</button>
+        </form>
+
+        <div class="generated-section">
+            <h2>Generated ML Code:</h2>
+            <pre id="output">Upload a dataset to generate ML code...</pre>
+        </div>
+    </div>
 
     <script>
         document.getElementById('uploadForm').addEventListener('submit', async function (event) {
@@ -76,10 +120,12 @@
             const formData = new FormData();
             const fileInput = document.getElementById('dataset');
             const taskType = document.getElementById('task').value;
+            const targetVariable = document.getElementById('target').value;
 
-            // Append the CSV file and task type to the form data
+            // Append the CSV file and task type and target variable to the form data
             formData.append('dataset', fileInput.files[0]);
             formData.append('task', taskType);
+            if (targetVariable) formData.append('target', targetVariable);
 
             // Send the form data to the server
             try {
