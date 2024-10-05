@@ -41,9 +41,15 @@ const extractCsvMetadata = (filePath) => {
 };
 
 const generateMLPrompt = (metadata, taskType, targetVariable) => {
+  if (targetVariable === "target") {
+    return `
+      ${JSON.stringify(metadata.sampleRows).substring(0, 1000)}
+      Generate a model for ${taskType}
+    `;
+  }
   return `
     ${JSON.stringify(metadata.sampleRows).substring(0, 1000)}
-    Generate a model for ${taskType} using "${targetVariable}" 
+    Generate a model for ${taskType} with target: "${targetVariable}" 
   `;
 };
 

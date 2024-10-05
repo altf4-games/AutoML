@@ -70,6 +70,10 @@
             background-color: #45a049;
         }
 
+        .generated-section {
+            margin-top: 30px;
+        }
+
         pre {
             background-color: #f4f4f4;
             padding: 20px;
@@ -77,10 +81,69 @@
             margin-top: 20px;
             white-space: pre-wrap;
             word-wrap: break-word;
+            overflow: auto;
+            /* Enable scrolling for long lines */
+            font-family: monospace;
+            max-height: 400px;
+            /* Limit height for better usability */
+            display: none;
+            /* Initially hidden */
         }
 
-        .generated-section {
+        .documentation {
             margin-top: 30px;
+            background-color: #e7f3fe;
+            padding: 20px;
+            border-left: 6px solid #2196F3;
+            border-radius: 8px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            /* Stay in place */
+            z-index: 1;
+            /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            /* Full width */
+            height: 100%;
+            /* Full height */
+            overflow: auto;
+            /* Enable scroll if needed */
+            background-color: rgb(0, 0, 0);
+            /* Fallback color */
+            background-color: rgba(0, 0, 0, 0.4);
+            /* Black w/ opacity */
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            /* Could be more or less, depending on screen size */
+            border-radius: 8px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -111,6 +174,26 @@
             <h2>Generated ML Code:</h2>
             <pre id="output">Upload a dataset to generate ML code...</pre>
         </div>
+
+        <div class="documentation" id="documentation" style="display:none;">
+            <h2>Documentation:</h2>
+            <p>This section provides information on how to use the generated ML code.</p>
+            <ul>
+                <li><strong>Classification:</strong> Use this for predicting categories.</li>
+                <li><strong>Regression:</strong> Use this for predicting continuous values.</li>
+                <li><strong>Clustering:</strong> Use this for grouping data points.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Download ML Model</h2>
+            <p>Your model has been generated successfully! Click the button below to download it:</p>
+            <button id="downloadBtn">Download Model</button>
+        </div>
     </div>
 
     <script>
@@ -138,7 +221,35 @@
 
                 if (result.success) {
                     // Display the generated ML code
-                    document.getElementById('output').textContent = result.modelCode;
+                    const generatedCode = result.modelCode;
+
+                    // Detect and format the Python code block
+                    const formattedCode = formatPythonCode(generatedCode);
+
+                    document.getElementById('output').textContent = formattedCode;
+
+                    // Show the pre element and documentation section
+                    document.getElementById('output').style.display = 'block';
+                    document.getElementById('documentation').style.display = 'block';
+
+                    // Show the modal for downloading the model
+                    const modal = document.getElementById("myModal");
+                    modal.style.display = "block";
+
+                    // Download button functionality
+                    document.getElementById('downloadBtn').addEventListener('click', function () {
+                        // Create a temporary .pkl file for download
+                        const blob = new Blob(["# This is a placeholder for your ML model."], { type: "application/octet-stream" });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'model.pkl';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    });
+
                 } else {
                     document.getElementById('output').textContent = 'Error: Failed to generate model code.';
                 }
@@ -147,6 +258,33 @@
                 document.getElementById('output').textContent = 'Error: Could not communicate with the server.';
             }
         });
+
+        function formatPythonCode(code) {
+            const codeBlockRegex = /```python([\s\S]*?)```/g;
+            const matches = code.match(codeBlockRegex);
+
+            if (matches) {
+                // Return the matched code block, removing the delimiters
+                return matches.map(match => match.replace(/```python|```/g, '').trim()).join('\n\n');
+            }
+            return code; // If no matches, return the original code
+        }
+
+        // Modal functionality
+        var modal = document.getElementById("myModal");
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
     </script>
 
 </body>
